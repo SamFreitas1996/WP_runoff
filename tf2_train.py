@@ -112,7 +112,7 @@ model.summary()
 
 # model.load_weights('saved_model/my_model.h5')
 
-epochs = 50
+epochs = 2
 history = model.fit(
   train_ds,
   validation_data=val_ds,
@@ -121,42 +121,71 @@ history = model.fit(
 )
 model.save('saved_model/my_model3.h5') 
 
-# sunflower_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/592px-Red_sunflower.jpg"
-# sunflower_path = tf.keras.utils.get_file('Red_sunflower', origin=sunflower_url)
+model.load_weights('saved_model/my_model3.h5')
 
-# img = keras.preprocessing.image.load_img(
-#     '271.png', target_size=(img_height, img_width)
-# )
-# img_array = keras.preprocessing.image.img_to_array(img)
-# img_array = tf.expand_dims(img_array, 0) # Create a batch
-# predictions1 = model.predict(img_array)
-# score = tf.nn.softmax(predictions1[0])
-# print(
-#     "271 - worm belongs to {} with a {:.2f} percent confidence."
-#     .format(class_names[np.argmax(score)], 100 * np.max(score))
-# )
+all_files = natsorted(os.listdir(os.path.join(os.getcwd(),'TFWP_dev','worms')))
+all_images_array = []
+for each_file in all_files:
+    if(each_file.endswith(".jpg") or each_file.endswith(".png")):
+        all_images_array.append(os.path.join(os.path.join(os.getcwd(),'TFWP_dev','worms'),each_file))
 
-# execution_path = os.getcwd()
-# all_files = natsorted(os.listdir(execution_path))
-# all_images_array = []
-# for each_file in all_files:
-#     if(each_file.endswith(".jpg") or each_file.endswith(".png")):
-#         all_images_array.append(os.path.join(execution_path,each_file))
+all_files2 = natsorted(os.listdir(os.path.join(os.getcwd(),'TFWP_dev','no_worms')))
+all_images_array2 = []
+for each_file in all_files2:
+    if(each_file.endswith(".jpg") or each_file.endswith(".png")):
+        all_images_array2.append(os.path.join(os.path.join(os.getcwd(),'TFWP_dev','no_worms'),each_file))
 
-# predictions_array = []
-# for each_file in all_images_array:
-#     this_img = keras.preprocessing.image.load_img(each_file, target_size=(img_height, img_width))
-#     this_img_array = tf.expand_dims(keras.preprocessing.image.img_to_array(this_img), 0)
-#     this_prediction = model.predict(this_img_array)
-#     predictions_array.append(this_prediction)
-#     score = tf.nn.softmax(this_prediction[0])
-#     # print(np.array(score[1]))
-#     print(
-#     each_file, "- {} with a {:.2f} percent confidence."
-#     .format(class_names[np.argmax(score)], 100 * np.max(score))
-#     )
+# for the worms
+predictions_array = []
+w_predicted = []
+for each_file in all_images_array:
+    this_img = keras.preprocessing.image.load_img(each_file, target_size=(img_height, img_width))
+    this_img_array = tf.expand_dims(keras.preprocessing.image.img_to_array(this_img), 0)
+    this_prediction = model.predict(this_img_array)
+    predictions_array.append(this_prediction)
+    score = tf.nn.softmax(this_prediction[0])
+    w_predicted.append(np.array(score[1]))
+
+# for the no_worms
+predictions_array2 = []
+nw_predicted = []
+for each_file in all_images_array2:
+    this_img = keras.preprocessing.image.load_img(each_file, target_size=(img_height, img_width))
+    this_img_array = tf.expand_dims(keras.preprocessing.image.img_to_array(this_img), 0)
+    this_prediction = model.predict(this_img_array)
+    predictions_array2.append(this_prediction)
+    score = tf.nn.softmax(this_prediction[0])
+    nw_predicted.append(np.array(score[1]))
 
 
+num_worms_correctly_predicted=0
+for i in range(len(w_predicted)):
+    if w_predicted[i] > 0.80:
+        num_worms_correctly_predicted+=1
+print('num_worms_correctly_predicted: ',num_worms_correctly_predicted,'/100')
+
+num_no_worms_correctly_predicted=0
+for i in range(len(nw_predicted)):
+    if nw_predicted[i] < 0.80:
+        num_no_worms_correctly_predicted+=1
+print('num_no_worms_correctly_predicted: ',num_no_worms_correctly_predicted,'/100')
+
+
+Rw = (num_worms_correctly_predicted/100) 
+Rnw = (num_no_worms_correctly_predicted/100)
+
+R = (Rw+Rnw)/2
+
+Pw = num_worms_correctly_predicted/( (100-num_no_worms_correctly_predicted) + num_worms_correctly_predicted)
+Pnw = num_no_worms_correctly_predicted/( (100-num_worms_correctly_predicted) + num_no_worms_correctly_predicted)
+
+P = (Pw+Pnw)/2
+
+F1 = 2*(P*R)/(P+R)
+
+print('F1 score is:  ',F1)
+print('Precision is: ',P)
+print('Recall is:    ',R)
 
 # print(predictions_array)
 # model.save('saved_model/my_model.h5') 
