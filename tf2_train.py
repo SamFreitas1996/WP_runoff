@@ -17,7 +17,7 @@ import pathlib
 # dataset_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
 # data_dir = tf.keras.utils.get_file('flower_photos', origin=dataset_url, untar=True)
 # data_dir = pathlib.Path(data_dir)
-data_dir2 = pathlib.Path('E:\Codes\TFWP_training')
+data_dir2 = pathlib.Path(os.path.join(os.getcwd(),'TFWP_training'))
 # image_count = len(list(data_dir2.glob('*/*.png')))
 # print(image_count)
 
@@ -80,11 +80,11 @@ data_augmentation = keras.Sequential(
 model = Sequential([
   data_augmentation,
   layers.experimental.preprocessing.Rescaling(1./255),
-  layers.Conv2D(128, 3, padding='same', activation='relu'),
-  layers.MaxPooling2D(),
-  layers.Conv2D(64, 3, padding='same', activation='relu'),
+  layers.Conv2D(16, 3, padding='same', activation='relu'),
   layers.MaxPooling2D(),
   layers.Conv2D(32, 3, padding='same', activation='relu'),
+  layers.MaxPooling2D(),
+  layers.Conv2D(64, 3, padding='same', activation='relu'),
   layers.MaxPooling2D(),
   layers.Dropout(0.2),
   layers.Flatten(),
@@ -106,20 +106,20 @@ cp_callback = tf.keras.callbacks.ModelCheckpoint(
     save_weights_only=True,
     period=5)
 
-es_Callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='auto',patience=3)
+es_Callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='auto',patience=3,restore_best_weights=True)
 
 model.summary()
 
 # model.load_weights('saved_model/my_model.h5')
 
-epochs = 20
+epochs = 50
 history = model.fit(
   train_ds,
   validation_data=val_ds,
   epochs=epochs,
   callbacks=[cp_callback,es_Callback]
 )
-model.save('saved_model/my_model2.h5') 
+model.save('saved_model/my_model3.h5') 
 
 # sunflower_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/592px-Red_sunflower.jpg"
 # sunflower_path = tf.keras.utils.get_file('Red_sunflower', origin=sunflower_url)
@@ -136,28 +136,28 @@ model.save('saved_model/my_model2.h5')
 #     .format(class_names[np.argmax(score)], 100 * np.max(score))
 # )
 
-execution_path = os.getcwd()
-all_files = natsorted(os.listdir(execution_path))
-all_images_array = []
-for each_file in all_files:
-    if(each_file.endswith(".jpg") or each_file.endswith(".png")):
-        all_images_array.append(os.path.join(execution_path,each_file))
+# execution_path = os.getcwd()
+# all_files = natsorted(os.listdir(execution_path))
+# all_images_array = []
+# for each_file in all_files:
+#     if(each_file.endswith(".jpg") or each_file.endswith(".png")):
+#         all_images_array.append(os.path.join(execution_path,each_file))
 
-predictions_array = []
-for each_file in all_images_array:
-    this_img = keras.preprocessing.image.load_img(each_file, target_size=(img_height, img_width))
-    this_img_array = tf.expand_dims(keras.preprocessing.image.img_to_array(this_img), 0)
-    this_prediction = model.predict(this_img_array)
-    predictions_array.append(this_prediction)
-    score = tf.nn.softmax(this_prediction[0])
-    # print(np.array(score[1]))
-    print(
-    each_file, "- {} with a {:.2f} percent confidence."
-    .format(class_names[np.argmax(score)], 100 * np.max(score))
-    )
+# predictions_array = []
+# for each_file in all_images_array:
+#     this_img = keras.preprocessing.image.load_img(each_file, target_size=(img_height, img_width))
+#     this_img_array = tf.expand_dims(keras.preprocessing.image.img_to_array(this_img), 0)
+#     this_prediction = model.predict(this_img_array)
+#     predictions_array.append(this_prediction)
+#     score = tf.nn.softmax(this_prediction[0])
+#     # print(np.array(score[1]))
+#     print(
+#     each_file, "- {} with a {:.2f} percent confidence."
+#     .format(class_names[np.argmax(score)], 100 * np.max(score))
+#     )
 
 
 
-# print('asdfasdf')
+# print(predictions_array)
 # model.save('saved_model/my_model.h5') 
 # new_model = tf.keras.models.load_model('saved_model/my_model')

@@ -65,14 +65,15 @@ class_names = ['no_worms', 'worms']
 
 num_classes = 2
 
+### changed random rotation and random zoon from 0.1 to 0.0
 data_augmentation = keras.Sequential(
   [
     layers.experimental.preprocessing.RandomFlip("horizontal", 
                                                  input_shape=(img_height, 
                                                               img_width,
                                                               3)),
-    layers.experimental.preprocessing.RandomRotation(0.1),
-    layers.experimental.preprocessing.RandomZoom(0.1),
+    layers.experimental.preprocessing.RandomRotation(0.0),
+    layers.experimental.preprocessing.RandomZoom(0.0),
   ]
 )
 
@@ -159,6 +160,8 @@ for each_file in all_images_array:
 
 
 
-# print('asdfasdf')
+print('General Kenobi, you are a bold one')
+for this_prediction in predictions_array:
+  print(this_prediction)
 # model.save('saved_model/my_model.h5') 
 # new_model = tf.keras.models.load_model('saved_model/my_model')
