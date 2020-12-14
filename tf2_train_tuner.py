@@ -74,15 +74,17 @@ def model_builder(hp):
 	model.add(layers.experimental.preprocessing.Rescaling(1./255))
 
 	# hyperparameters 
-	hp_filters = hp.Int('filters', min_value = 2, max_value = 64, step = 4)
+	hp_filter1 = hp.Int('filters', min_value = 2, max_value = 64, step = 4)
+	hp_filter2 = hp.Int('filters', min_value = 2, max_value = 64, step = 4)
+	hp_filter3 = hp.Int('filters', min_value = 2, max_value = 64, step = 4)
 	hp_kernal_size = hp.Int('kernel_size', min_value = 1, max_value = 5, step = 1)
 
 	# layers that use the hyperparameters
-	model.add(layers.Conv2D(hp_filters, hp_kernal_size, padding='same', activation='relu'))
+	model.add(layers.Conv2D(hp_filter1, hp_kernal_size, padding='same', activation='relu'))
 	model.add(layers.MaxPooling2D())
-	model.add(layers.Conv2D(hp_filters*2,hp_kernal_size, padding='same', activation='relu'))
+	model.add(layers.Conv2D(hp_filter2,hp_kernal_size, padding='same', activation='relu'))
 	model.add(layers.MaxPooling2D())
-	model.add(layers.Conv2D(hp_filters*4,hp_kernal_size, padding='same', activation='relu'))
+	model.add(layers.Conv2D(hp_filter3,hp_kernal_size, padding='same', activation='relu'))
 	model.add(layers.MaxPooling2D())
 
 	# output layers
@@ -119,7 +121,7 @@ tuner.search(train_ds,
 
 
 # get the best hyperparameters
-best_hps = tuner.get_best_hyperparameters(num_trials = 1)
+best_hps = tuner.get_best_hyperparameters(num_trials = 1)[0]
 
 # print the best parameters
 print(best_hps)
@@ -182,7 +184,7 @@ for each_file in all_images_array2:
 # calculate the number of correctly predicted worms and no_worms
 num_worms_correctly_predicted=0
 for i in range(len(w_predicted)):
-	if w_predicted[i] > 0.80:
+	if w_predicted[i] > 0.70:
 		num_worms_correctly_predicted+=1
 print('num_worms_correctly_predicted: ',num_worms_correctly_predicted,'/100')
 
@@ -208,3 +210,5 @@ F1 = 2*(P*R)/(P+R)
 print('F1 score is:  ',round(F1,5))
 print('Precision is: ',round(P,5))
 print('Recall is:    ',round(R,5))
+
+print('end')
