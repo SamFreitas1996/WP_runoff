@@ -108,6 +108,9 @@ tuner = kt.Hyperband(model_builder,
 					directory='tuner_dir',
 					project_name='WP_runoff')
 
+# create early stop callback 
+es_Callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='auto',patience=3,restore_best_weights=True)
+
 # clear any previous output
 class ClearTrainingOutput(tf.keras.callbacks.Callback):
 	def on_train_end(*args, **kwargs):
@@ -116,8 +119,8 @@ class ClearTrainingOutput(tf.keras.callbacks.Callback):
 # tune the model with tuner.search()
 tuner.search(train_ds,
 			validation_data = val_ds, 
-			epochs = 1, 
-			callbacks = [ClearTrainingOutput()])
+			epochs = 3, 
+			callbacks = [ClearTrainingOutput(),es_Callback])
 
 
 # get the best hyperparameters
@@ -128,7 +131,6 @@ print(best_hps)
 
 # reload in the model 
 model = tuner.hypermodel.build(best_hps)
-es_Callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='auto',patience=3,restore_best_weights=True)
 
 # show the summary 
 model.summary()
