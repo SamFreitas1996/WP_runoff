@@ -106,13 +106,13 @@ cp_callback = tf.keras.callbacks.ModelCheckpoint(
 	save_weights_only=True,
 	period=5)
 
-es_Callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='auto',patience=15,restore_best_weights=True)
+es_Callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='auto',patience=25,restore_best_weights=True)
 
 model.summary()
 
 # model.load_weights('saved_model/my_model.h5')
 
-epochs = 100
+epochs = 200
 history = model.fit(
 	train_ds,
 	validation_data=val_ds,
@@ -121,9 +121,9 @@ history = model.fit(
 	# callbacks=[cp_callback,es_Callback]
 	# callbacks=[cp_callback]
 )
-model.save('saved_model/my_model4.h5') 
+model.save('saved_model/my_model5.h5') 
 
-model.load_weights('saved_model/my_model4.h5')
+model.load_weights('saved_model/my_model5.h5')
  
 all_files = natsorted(os.listdir(os.path.join(os.getcwd(),'TFWP_dev','worms')))
 all_images_array = []
